@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="theme-color" content="#000000" />
+    <title>NAZAR</title>
+  </head>
+  <body>
+    <!-- HOME SCREEN -->
+    <div id="home-screen">
+      <div class="home-content">
+        <h1 class="game-title">NAZAR</h1>
+        <p class="game-subtitle">A journey into darkness</p>
+        <button id="play-btn" class="ui-btn">PLAY</button>
+        <div class="controls-hint">
+          <span>Arrow Keys / WASD — Move</span>
+          <span>Space — Jump</span>
+          <span>E — Interact</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- DEATH / REPLAY SCREEN -->
+    <div id="death-screen" class="hidden">
+      <div class="death-content">
+        <h2 class="death-title">YOU DIED</h2>
+        <button id="replay-btn" class="ui-btn">RETRY</button>
+      </div>
+    </div>
+
+    <!-- MOBILE CONTROLS -->
+    <div id="mobile-controls" class="hidden">
+      <div id="joystick-zone">
+        <div id="joystick-base">
+          <div id="joystick-knob"></div>
+        </div>
+      </div>
+      <div id="action-buttons">
+        <button id="btn-jump" class="action-btn">⬆</button>
+        <button id="btn-interact" class="action-btn btn-small">E</button>
+      </div>
+    </div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

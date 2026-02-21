@@ -1,0 +1,222 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&display=swap');
+
+:root {
+  background-color: #000000;
+  --ui-font: 'Inter', sans-serif;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: #000000;
+  touch-action: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+  font-family: var(--ui-font);
+}
+
+canvas {
+  display: block;
+}
+
+/* =================== */
+/* HOME SCREEN         */
+/* =================== */
+
+#home-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: linear-gradient(180deg, #0a0c0f 0%, #1a1d22 50%, #0a0c0f 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.5s ease-out;
+}
+
+.home-content {
+  text-align: center;
+  color: #c8cdd2;
+}
+
+.game-title {
+  font-size: 5rem;
+  font-weight: 900;
+  letter-spacing: 1.2rem;
+  color: #e0e4e8;
+  text-shadow: 0 0 60px rgba(100, 120, 140, 0.4);
+  margin: 0 0 0.3rem;
+  animation: titlePulse 3s ease-in-out infinite;
+}
+
+.game-subtitle {
+  font-size: 1rem;
+  font-weight: 300;
+  letter-spacing: 0.3rem;
+  color: #667788;
+  margin: 0 0 3rem;
+  text-transform: uppercase;
+}
+
+.ui-btn {
+  display: inline-block;
+  padding: 0.8rem 3rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+  font-family: var(--ui-font);
+  letter-spacing: 0.4rem;
+  text-transform: uppercase;
+  color: #e0e4e8;
+  background: transparent;
+  border: 2px solid rgba(200, 210, 220, 0.3);
+  border-radius: 2px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.ui-btn:hover {
+  background: rgba(200, 210, 220, 0.1);
+  border-color: rgba(200, 210, 220, 0.6);
+  box-shadow: 0 0 30px rgba(100, 130, 160, 0.2);
+}
+
+.ui-btn:active {
+  transform: scale(0.96);
+}
+
+.controls-hint {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin-top: 2rem;
+  font-size: 0.7rem;
+  color: #445566;
+  letter-spacing: 0.15rem;
+}
+
+/* =================== */
+/* DEATH SCREEN        */
+/* =================== */
+
+#death-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  background: rgba(5, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.death-content {
+  text-align: center;
+}
+
+.death-title {
+  font-size: 2.5rem;
+  font-weight: 900;
+  letter-spacing: 0.8rem;
+  color: #661111;
+  text-shadow: 0 0 40px rgba(120, 20, 20, 0.6);
+  margin: 0 0 2rem;
+}
+
+/* =================== */
+/* MOBILE CONTROLS     */
+/* =================== */
+
+#mobile-controls {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+}
+
+#joystick-zone {
+  position: absolute;
+  left: 20px;
+  bottom: 20px;
+  width: 140px;
+  height: 140px;
+  pointer-events: auto;
+}
+
+#joystick-base {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#joystick-knob {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  position: absolute;
+  transition: transform 0.05s ease-out;
+}
+
+#action-buttons {
+  position: absolute;
+  right: 20px;
+  bottom: 20px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+  pointer-events: auto;
+}
+
+.action-btn {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 1.4rem;
+  font-family: var(--ui-font);
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.action-btn:active {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.action-btn.btn-small {
+  width: 50px;
+  height: 50px;
+  font-size: 1rem;
+}
+
+/* =================== */
+/* UTILITIES           */
+/* =================== */
+
+.hidden {
+  display: none !important;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes titlePulse {
+  0%, 100% { text-shadow: 0 0 60px rgba(100, 120, 140, 0.3); }
+  50% { text-shadow: 0 0 80px rgba(100, 120, 140, 0.6); }
+}
