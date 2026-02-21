@@ -71,6 +71,20 @@ export class Engine {
 
         // Handle Resize
         window.addEventListener('resize', this.onWindowResize.bind(this));
+
+        // Handle Mobile Orientation Change specifically
+        window.addEventListener('orientationchange', () => {
+            // Browsers often fire this event before the innerWidth/innerHeight are actually updated.
+            // A short timeout ensures we get the true landscape dimensions.
+            setTimeout(() => {
+                this.onWindowResize();
+            }, 200);
+
+            // Failsafe second check just in case it took longer
+            setTimeout(() => {
+                this.onWindowResize();
+            }, 500);
+        });
     }
 
     private onWindowResize(): void {
@@ -84,6 +98,10 @@ export class Engine {
 
         this.renderer.setSize(this.width, this.height);
         this.composer.setSize(this.width, this.height);
+
+        // Force the canvas to stretch to CSS bounds in case pixelRatio makes the internal buffer weird
+        this.renderer.domElement.style.width = '100vw';
+        this.renderer.domElement.style.height = '100vh';
     }
 
     public render(): void {
