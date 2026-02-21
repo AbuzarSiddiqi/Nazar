@@ -6,8 +6,10 @@ export class GameUI {
     private homeScreen: HTMLElement;
     private deathScreen: HTMLElement;
     private mobileControls: HTMLElement;
+    private ingameUI: HTMLElement;
     private playBtn: HTMLElement;
     private replayBtn: HTMLElement;
+    private ingameRetryBtn: HTMLElement;
 
     // Mobile joystick state
     public joystickX = 0; // -1 to 1
@@ -33,8 +35,10 @@ export class GameUI {
         this.homeScreen = document.getElementById('home-screen')!;
         this.deathScreen = document.getElementById('death-screen')!;
         this.mobileControls = document.getElementById('mobile-controls')!;
+        this.ingameUI = document.getElementById('ingame-ui')!;
         this.playBtn = document.getElementById('play-btn')!;
         this.replayBtn = document.getElementById('replay-btn')!;
+        this.ingameRetryBtn = document.getElementById('ingame-retry-btn')!;
         this.joystickBase = document.getElementById('joystick-base')!;
         this.joystickKnob = document.getElementById('joystick-knob')!;
 
@@ -45,19 +49,46 @@ export class GameUI {
 
     private setupEvents(): void {
         // Play button
-        this.playBtn.addEventListener('click', () => {
+        this.playBtn.addEventListener('click', async () => {
             this.state = 'PLAYING';
             this.homeScreen.classList.add('hidden');
-            if (this.isMobile) this.mobileControls.classList.remove('hidden');
+            this.ingameUI.classList.remove('hidden');
+            if (this.isMobile) {
+                this.mobileControls.classList.remove('hidden');
+
+                // Request Fullscreen and lock to Landscape on supported mobile browsers
+                try {
+                    const docElm = document.documentElement as any;
+                    if (docElm.requestFullscreen) {
+                        await docElm.requestFullscreen();
+                    } else if (docElm.webkitRequestFullscreen) {
+                        await docElm.webkitRequestFullscreen(); // Safari
+                    }
+
+                    if (screen.orientation && 'lock' in screen.orientation) {
+                        await (screen.orientation as any).lock('landscape');
+                    }
+                } catch (err) {
+                    console.warn("Could not lock orientation or enter fullscreen:", err);
+                }
+            }
             this.onPlay();
         });
 
-        // Replay button
+        // Replay button (on death screen)
         this.replayBtn.addEventListener('click', () => {
             this.state = 'PLAYING';
             this.deathScreen.classList.add('hidden');
+            this.ingameUI.classList.remove('hidden');
             if (this.isMobile) this.mobileControls.classList.remove('hidden');
             this.onReplay();
+        });
+
+        // In-game Retry button (from pause/HUD)
+        this.ingameRetryBtn.addEventListener('click', () => {
+            if (this.state === 'PLAYING') {
+                this.onReplay(); // same effect as replay (reset to checkpoint)
+            }
         });
 
         // Mobile joystick
@@ -146,6 +177,7 @@ export class GameUI {
     public showDeathScreen(): void {
         this.state = 'DEAD';
         this.deathScreen.classList.remove('hidden');
+        this.ingameUI.classList.add('hidden');
         if (this.isMobile) this.mobileControls.classList.add('hidden');
     }
 

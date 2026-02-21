@@ -3,11 +3,22 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <meta name="theme-color" content="#000000" />
     <title>NAZAR</title>
   </head>
   <body>
+    <!-- PORTRAIT WARNING OVERLAY -->
+    <div id="portrait-warning">
+      <div class="warning-content">
+        <svg viewBox="0 0 24 24" width="64" height="64" stroke="currentColor" stroke-width="2" fill="none">
+          <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
+          <line x1="12" y1="18" x2="12.01" y2="18"/>
+        </svg>
+        <p>Please rotate your device to <b>Landscape</b> to play NAZAR.</p>
+      </div>
+    </div>
+
     <!-- HOME SCREEN -->
     <div id="home-screen">
       <div class="home-content">
@@ -20,6 +31,17 @@
           <span>E — Interact</span>
         </div>
       </div>
+    </div>
+
+    <!-- IN-GAME UI -->
+    <div id="ingame-ui" class="hidden">
+      <button id="ingame-retry-btn" class="small-ui-btn">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+          <path d="M3 3v5h5"/>
+        </svg>
+        RETRY
+      </button>
     </div>
 
     <!-- DEATH / REPLAY SCREEN -->
@@ -38,7 +60,11 @@
         </div>
       </div>
       <div id="action-buttons">
-        <button id="btn-jump" class="action-btn">⬆</button>
+        <button id="btn-jump" class="action-btn">
+          <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 19V5M5 12l7-7 7 7"/>
+          </svg>
+        </button>
         <button id="btn-interact" class="action-btn btn-small">E</button>
       </div>
     </div>

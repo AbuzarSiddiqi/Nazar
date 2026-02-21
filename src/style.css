@@ -22,6 +22,42 @@ canvas {
 }
 
 /* =================== */
+/* PORTRAIT WARNING    */
+/* =================== */
+
+#portrait-warning {
+  display: none;
+}
+
+@media screen and (orientation: portrait) and (max-width: 900px) {
+  #portrait-warning {
+    display: flex;
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: #050505;
+    color: #e0e4e8;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 2rem;
+  }
+
+  #portrait-warning p {
+    font-size: 1.2rem;
+    line-height: 1.6;
+    margin-top: 1rem;
+    letter-spacing: 0.1rem;
+  }
+
+  #portrait-warning svg {
+    margin-bottom: 1rem;
+    animation: rotatePhone 2.5s ease-in-out infinite;
+  }
+}
+
+/* =================== */
 /* HOME SCREEN         */
 /* =================== */
 
@@ -125,6 +161,48 @@ canvas {
 }
 
 /* =================== */
+/* IN-GAME UI          */
+/* =================== */
+
+#ingame-ui {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 60;
+  pointer-events: none;
+}
+
+.small-ui-btn {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  font-family: var(--ui-font);
+  letter-spacing: 0.2rem;
+  text-transform: uppercase;
+  color: rgba(220, 224, 232, 0.7);
+  background: rgba(10, 12, 15, 0.6);
+  border: 1px solid rgba(200, 210, 220, 0.2);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(4px);
+}
+
+.small-ui-btn:hover {
+  background: rgba(200, 210, 220, 0.15);
+  color: #fff;
+  border-color: rgba(200, 210, 220, 0.5);
+}
+
+.small-ui-btn:active {
+  transform: scale(0.96);
+}
+
+/* =================== */
 /* MOBILE CONTROLS     */
 /* =================== */
 
@@ -193,6 +271,10 @@ canvas {
   -webkit-tap-highlight-color: transparent;
 }
 
+.action-btn svg {
+  opacity: 0.8;
+}
+
 .action-btn:active {
   background: rgba(255, 255, 255, 0.2);
 }
@@ -212,11 +294,37 @@ canvas {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes titlePulse {
-  0%, 100% { text-shadow: 0 0 60px rgba(100, 120, 140, 0.3); }
-  50% { text-shadow: 0 0 80px rgba(100, 120, 140, 0.6); }
+
+  0%,
+  100% {
+    text-shadow: 0 0 60px rgba(100, 120, 140, 0.3);
+  }
+
+  50% {
+    text-shadow: 0 0 80px rgba(100, 120, 140, 0.6);
+  }
+}
+
+@keyframes rotatePhone {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  30% {
+    transform: rotate(-90deg);
+  }
+
+  100% {
+    transform: rotate(-90deg);
+  }
 }
