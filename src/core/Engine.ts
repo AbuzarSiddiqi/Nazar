@@ -98,10 +98,6 @@ export class Engine {
 
         this.renderer.setSize(this.width, this.height);
         this.composer.setSize(this.width, this.height);
-
-        // Force the canvas to stretch to CSS bounds in case pixelRatio makes the internal buffer weird
-        this.renderer.domElement.style.width = '100vw';
-        this.renderer.domElement.style.height = '100vh';
     }
 
     public render(): void {
