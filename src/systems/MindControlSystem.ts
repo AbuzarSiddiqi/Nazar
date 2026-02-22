@@ -75,7 +75,7 @@ export class MindControlSystem {
     private helmetMesh: THREE.Mesh;
     private wasInteractPressed: boolean = false;
 
-    constructor(scene: THREE.Scene, world: CANNON.World, position: CANNON.Vec3) {
+    constructor(scene: THREE.Scene, position: CANNON.Vec3) {
         this.helmetPosition = position;
 
         // Helmet Mesh (Yellow Glow)
@@ -84,9 +84,6 @@ export class MindControlSystem {
         this.helmetMesh = new THREE.Mesh(geo, mat);
         this.helmetMesh.position.copy(position as unknown as THREE.Vector3);
         scene.add(this.helmetMesh);
-
-        // Hardcodded drone for testing
-        this.drones.push(new Drone(scene, world, new CANNON.Vec3(position.x + 5, 5, 0)));
     }
 
     public update(player: Player, inputManager: InputManager): void {

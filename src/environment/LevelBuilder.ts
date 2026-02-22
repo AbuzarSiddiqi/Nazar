@@ -19,13 +19,14 @@ function groundMat(): CANNON.Material {
 function createPlatform(
     scene: THREE.Scene, world: CANNON.World,
     x: number, y: number, w: number, h: number,
-    color = 0x3a4045, depth = 120
+    color = 0x3a4045, depth = 120, rotationZ = 0
 ): CANNON.Body {
     // Visual
     const geo = new THREE.BoxGeometry(w, h, depth);
     const mat = new THREE.MeshStandardMaterial({ color, roughness: 1.0 });
     const mesh = new THREE.Mesh(geo, mat);
     mesh.position.set(x, y, 0);
+    mesh.rotation.z = rotationZ;
     mesh.receiveShadow = true;
     mesh.castShadow = true;
     scene.add(mesh);
@@ -33,6 +34,9 @@ function createPlatform(
     // Physics
     const shape = new CANNON.Box(new CANNON.Vec3(w / 2, h / 2, depth / 2));
     const body = new CANNON.Body({ mass: 0, material: groundMat(), position: new CANNON.Vec3(x, y, 0) });
+    if (rotationZ !== 0) {
+        body.quaternion.setFromAxisAngle(new CANNON.Vec3(0, 0, 1), rotationZ);
+    }
     body.addShape(shape);
     world.addBody(body);
     return body;
@@ -209,23 +213,60 @@ export class LevelBuilder {
     // Learn to run and jump
     // =====================================
     private buildSection1_ForestIntro(): void {
+        // Cliff to slide down at start
+        createPlatform(this.scene, this.world, -4, 5, 12, 1, 0x3a4045, 120, -Math.PI / 4);
+
         // Ground platform
         createPlatform(this.scene, this.world, 10, -1.5, 22, 1);
         createGroundVisual(this.scene, 10, 22);
 
         // Checkpoint: Start
-        this.checkpointSystem.register(new CANNON.Vec3(2, 2, 0));
+        this.checkpointSystem.register(new CANNON.Vec3(-3, 8, 0));
 
         // Background trees
-        for (let i = 0; i < 10; i++) {
-            createTree(this.scene, Math.random() * 20, -(Math.random() * 20 + 3));
+        for (let i = 0; i < 15; i++) {
+            createTree(this.scene, -10 + Math.random() * 30, -(Math.random() * 20 + 3));
         }
-        // Foreground trees
-        createTree(this.scene, 5, 2);
-        createTree(this.scene, 14, 3);
 
-        // Abandoned vehicle with headlights cutting through the fog
+        // Massive, dark foreground trees (Silhouettes wrapping the screen edges)
+        // varying in distance (z), radius (r), and slight tilt for a natural, 2.5D parallax feel
+        const createForegroundTree = (x: number, z: number, r: number, tiltZ: number = 0) => {
+            // Randomize the number of segments slightly to make some look more stylized/angular
+            const segments = Math.floor(Math.random() * 3) + 6;
+            const geo = new THREE.CylinderGeometry(r * 0.7, r, 40, segments);
+            const mat = new THREE.MeshBasicMaterial({ color: 0x010203 }); // Pitch black silhouette
+            const mesh = new THREE.Mesh(geo, mat);
+            mesh.position.set(x, 10, z);
+            mesh.rotation.z = tiltZ;
+            this.scene.add(mesh);
+        };
+
+        // Place silhouettes with varying Z depth for parallax
+        // Closer = higher Z, moves faster. Further = lower Z, moves slower.
+        createForegroundTree(-8, 22, 1.8, 0.05);  // Very close, slightly tilted left
+        createForegroundTree(-2, 12, 0.8, -0.02); // Further back, thinner
+        createForegroundTree(6, 25, 2.5, -0.08);  // Massive, very close, blocking right side
+        createForegroundTree(14, 15, 1.2, 0.04);  // Mid-ground foreground
+        createForegroundTree(22, 28, 3.0, 0.02);  // Huge tree later on
+
+        // Abandoned vehicle with headlights
         createVehicle(this.scene, 8, -6, 0.15);
+
+        // Moon light (Dim, cool blue light washing over the start sequence)
+        const moonLight = new THREE.DirectionalLight(0xaaccff, 0.4);
+        moonLight.position.set(-10, 20, 10);
+        moonLight.target.position.set(5, 0, 0);
+        moonLight.castShadow = true;
+        moonLight.shadow.mapSize.width = 1024;
+        moonLight.shadow.mapSize.height = 1024;
+        moonLight.shadow.camera.near = 0.5;
+        moonLight.shadow.camera.far = 50;
+        moonLight.shadow.camera.left = -15;
+        moonLight.shadow.camera.right = 15;
+        moonLight.shadow.camera.top = 15;
+        moonLight.shadow.camera.bottom = -15;
+        this.scene.add(moonLight);
+        this.scene.add(moonLight.target);
     }
 
     // =====================================

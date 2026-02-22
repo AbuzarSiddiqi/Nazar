@@ -65,35 +65,46 @@ canvas {
   position: fixed;
   inset: 0;
   z-index: 100;
-  background: linear-gradient(180deg, #0a0c0f 0%, #1a1d22 50%, #0a0c0f 100%);
+  background: transparent;
   display: flex;
   align-items: center;
   justify-content: center;
   animation: fadeIn 0.5s ease-out;
+  cursor: pointer;
+  transition: opacity 1.5s ease-in-out;
+}
+
+#home-screen.fade-out {
+  opacity: 0;
+  pointer-events: none;
 }
 
 .home-content {
-  text-align: center;
-  color: #c8cdd2;
+  position: absolute;
+  left: 15%;
+  top: 30%;
+  text-align: left;
+}
+
+.studio-name {
+  font-size: 1.2rem;
+  font-weight: 400;
+  color: #a02020;
+  margin: 0 0 -1rem 0.6rem;
+  letter-spacing: 0.15rem;
+  font-family: 'Inter', sans-serif;
 }
 
 .game-title {
-  font-size: 5rem;
+  font-size: 7.5rem;
   font-weight: 900;
-  letter-spacing: 1.2rem;
-  color: #e0e4e8;
-  text-shadow: 0 0 60px rgba(100, 120, 140, 0.4);
-  margin: 0 0 0.3rem;
-  animation: titlePulse 3s ease-in-out infinite;
-}
-
-.game-subtitle {
-  font-size: 1rem;
-  font-weight: 300;
-  letter-spacing: 0.3rem;
-  color: #667788;
-  margin: 0 0 3rem;
-  text-transform: uppercase;
+  letter-spacing: 0.4rem;
+  color: #bf2828;
+  text-shadow: 2px 2px 20px rgba(0, 0, 0, 0.8);
+  margin: 0;
+  /* Squished text look */
+  transform: scaleY(1.3);
+  transform-origin: top left;
 }
 
 .ui-btn {

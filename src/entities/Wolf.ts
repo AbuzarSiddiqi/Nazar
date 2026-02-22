@@ -11,8 +11,10 @@ export class Wolf {
     public mesh: THREE.Group;
     public body: CANNON.Body;
     public isChasing = false;
+    private world: CANNON.World;
 
-    private chaseSpeed = 5.8; // Slightly slower than player sprint (6.5) so player CAN escape
+    private chaseSpeed = 7.0; // Faster than player sprint (6.5) so player MUST be perfect
+
     private eyeGlow: THREE.PointLight;
     private leftEye: THREE.Mesh;
     private rightEye: THREE.Mesh;
@@ -20,6 +22,7 @@ export class Wolf {
     private animTime = 0;
 
     constructor(scene: THREE.Scene, world: CANNON.World, position: CANNON.Vec3) {
+        this.world = world;
         this.mesh = new THREE.Group();
 
         const blackMat = new THREE.MeshStandardMaterial({ color: 0x050505, roughness: 1.0 });
@@ -103,12 +106,19 @@ export class Wolf {
         scene.add(this.mesh);
 
         // Physics
-        const shape = new CANNON.Box(new CANNON.Vec3(0.8, 0.3, 0.3));
+        const shape = new CANNON.Box(new CANNON.Vec3(0.8, 0.5, 0.3));
+
+        // Zero friction material so it doesn't drag on ground
+        const physicsMaterial = new CANNON.Material('wolfMaterial');
+        physicsMaterial.friction = 0.0;
+
         this.body = new CANNON.Body({
-            mass: 8,
+            mass: 0, // Start as 0 (static) so it doesn't fall through the floor while waiting
+            material: physicsMaterial,
             position: position,
             fixedRotation: true,
             linearDamping: 0,
+            type: CANNON.Body.STATIC
         });
         this.body.allowSleep = false;
         this.body.addShape(shape);
@@ -123,7 +133,14 @@ export class Wolf {
         if (this.isChasing) return;
         this.isChasing = true;
         this.mesh.visible = true;
+
+        // Wake up physics
+        this.body.position.y += 0.5; // Lift up slightly to avoid clipping through ground on wake
+        this.body.type = CANNON.Body.DYNAMIC;
+        this.body.mass = 8;
+        this.body.updateMassProperties();
         this.body.collisionResponse = true;
+        this.body.wakeUp();
     }
 
     public update(player: Player, deltaTime: number): void {
@@ -140,6 +157,28 @@ export class Wolf {
 
         // Face direction
         this.mesh.scale.x = dir > 0 ? 1 : -1;
+
+        // Ground detection for jumping
+        const from = this.body.position;
+        const to = new CANNON.Vec3(from.x, from.y - 0.6, from.z); // Because half height is 0.5
+        const groundResult = new CANNON.RaycastResult();
+        this.world.raycastClosest(from, to, { skipBackfaces: true }, groundResult);
+        const isGrounded = groundResult.hasHit;
+
+        // Gap detection
+        if (isGrounded) {
+            // Look ahead to see if there is no ground
+            const lookAheadX = this.body.position.x + (dir * 3.0); // Check 3.0 units ahead to jump earlier
+            const fromAhead = new CANNON.Vec3(lookAheadX, this.body.position.y + 0.5, this.body.position.z);
+            const toAhead = new CANNON.Vec3(lookAheadX, this.body.position.y - 2.0, this.body.position.z);
+            const gapResult = new CANNON.RaycastResult();
+            this.world.raycastClosest(fromAhead, toAhead, { skipBackfaces: true }, gapResult);
+
+            // If no ground ahead, JUMP
+            if (!gapResult.hasHit) {
+                this.body.velocity.y = 9.0; // Strong jump
+            }
+        }
 
         // Animate legs (galloping motion)
         const gallopSpeed = 12;

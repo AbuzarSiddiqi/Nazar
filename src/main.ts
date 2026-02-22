@@ -27,18 +27,30 @@ const player = new Player(engine.scene, physics.world);
 const level = new LevelBuilder(engine.scene, physics.world);
 
 // Mind control helmet (placed at Section 8 — Facility Entrance)
-const mindControl = new MindControlSystem(engine.scene, physics.world, new CANNON.Vec3(185, 2, 0));
+const mindControl = new MindControlSystem(engine.scene, new CANNON.Vec3(185, 2, 0));
 
 // ===== GAME UI =====
 let gameRunning = false;
 let deathCooldown = 0; // Prevent instant re-death after respawn
+
+let introState = 0; // 0 = Not started, 1 = Falling/Sliding, 2 = Recovery, 3 = Intro Done/Playing
+let introRecoveryTimer = 0;
 
 const gameUI = new GameUI(
     // onPlay
     () => {
         gameRunning = true;
         audio.start(); // Start ambient audio on first user interaction
-        level.checkpointSystem.respawn(player.body);
+
+        // Start cinematic intro
+        player.isStartingIntro = true;
+        player.body.position.set(-5, 12, 0); // Spawn high up
+        player.body.velocity.set(0, -2, 0); // Give initial downward velocity
+        introState = 1;
+
+        // Snap camera
+        engine.camera.position.x = -5;
+        engine.camera.position.y = 10;
     },
     // onReplay
     () => {
@@ -83,6 +95,23 @@ function gameLoop(time: number) {
 
     // Only update game logic when playing
     if (gameRunning) {
+        // Intro Sequence Logic
+        if (introState === 1) {
+            // End when Grounded, stopped sliding, and velocity settles
+            if (player.body.velocity.y > -0.1 && player.body.velocity.y < 0.1 && player.body.position.y < 5) {
+                if (Math.abs(player.body.velocity.x) < 0.5) {
+                    player.body.velocity.x = 0; // force stop
+                    introState = 2;
+                    introRecoveryTimer = 1.0; // wait 1s before control
+                }
+            }
+        } else if (introState === 2) {
+            introRecoveryTimer -= deltaTime;
+            if (introRecoveryTimer <= 0) {
+                introState = 3;
+                player.isStartingIntro = false;
+            }
+        }
         // Player
         player.update(inputManager, deltaTime);
 

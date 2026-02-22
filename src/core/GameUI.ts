@@ -7,7 +7,6 @@ export class GameUI {
     private deathScreen: HTMLElement;
     private mobileControls: HTMLElement;
     private ingameUI: HTMLElement;
-    private playBtn: HTMLElement;
     private replayBtn: HTMLElement;
     private ingameRetryBtn: HTMLElement;
 
@@ -36,7 +35,6 @@ export class GameUI {
         this.deathScreen = document.getElementById('death-screen')!;
         this.mobileControls = document.getElementById('mobile-controls')!;
         this.ingameUI = document.getElementById('ingame-ui')!;
-        this.playBtn = document.getElementById('play-btn')!;
         this.replayBtn = document.getElementById('replay-btn')!;
         this.ingameRetryBtn = document.getElementById('ingame-retry-btn')!;
         this.joystickBase = document.getElementById('joystick-base')!;
@@ -48,10 +46,14 @@ export class GameUI {
     }
 
     private setupEvents(): void {
-        // Play button
-        this.playBtn.addEventListener('click', async () => {
+        // Start game on screen tap
+        this.homeScreen.addEventListener('click', async () => {
+            if (this.state === 'PLAYING') return;
             this.state = 'PLAYING';
-            this.homeScreen.classList.add('hidden');
+            this.homeScreen.classList.add('fade-out');
+            setTimeout(() => {
+                this.homeScreen.classList.add('hidden');
+            }, 1500);
             this.ingameUI.classList.remove('hidden');
             if (this.isMobile) {
                 this.mobileControls.classList.remove('hidden');

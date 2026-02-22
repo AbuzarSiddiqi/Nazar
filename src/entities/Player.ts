@@ -11,6 +11,7 @@ export class Player {
     private jumpForce = 7.5; // Slightly snappier jump
 
     public isMindControlling = false; // Flag to disable input when in helmet
+    public isStartingIntro = false; // Flag to disable input during intro falling sequence
     public onDeath: (() => void) | null = null; // Callback for death events (e.g. checkpoint respawn)
 
     // Animation Parts
@@ -106,11 +107,7 @@ export class Player {
     public update(inputManager: InputManager, deltaTime: number): void {
         this.mesh.position.copy(this.body.position as unknown as THREE.Vector3);
 
-        // If mind controlling, player body doesn't take input directly, drone does
-        if (this.isMindControlling) {
-            this.body.velocity.x = 0;
-            return;
-        }
+        let takeInput = !this.isMindControlling && !this.isStartingIntro;
 
         const velocity = this.body.velocity;
 
@@ -130,41 +127,51 @@ export class Player {
         const canJump = this.coyoteTimer > 0;
 
         // ---- Horizontal Movement ----
-        // When grounded: set velocity directly (physics solver fights gradual acceleration)
-        // When airborne: use softer momentum for limited air control
         let targetVelX = 0;
-        if (inputManager.isMovingLeft()) {
+        if (takeInput && inputManager.isMovingLeft()) {
             targetVelX = -this.movementSpeed;
-        } else if (inputManager.isMovingRight()) {
+        } else if (takeInput && inputManager.isMovingRight()) {
             targetVelX = this.movementSpeed;
         }
 
         if (isGrounded) {
-            // Direct velocity assignment — reliable on ground
-            if (targetVelX !== 0) {
-                velocity.x = targetVelX;
-            } else {
-                // Slight deceleration slide when stopping
+            if (this.isStartingIntro) {
+                // Dampen velocity if basically stopped vertically
+                if (Math.abs(velocity.y) < 0.1) {
+                    velocity.x *= 0.95;
+                    if (Math.abs(velocity.x) < 0.1) velocity.x = 0;
+                }
+            } else if (this.isMindControlling) {
                 velocity.x *= 0.8;
                 if (Math.abs(velocity.x) < 0.1) velocity.x = 0;
+            } else {
+                // Direct velocity assignment — reliable on ground
+                if (targetVelX !== 0) {
+                    velocity.x = targetVelX;
+                } else {
+                    // Slight deceleration slide when stopping
+                    velocity.x *= 0.8;
+                    if (Math.abs(velocity.x) < 0.1) velocity.x = 0;
+                }
             }
         } else {
             // Air control — momentum based, much less responsive
-            const airAccel = 15;
-            if (targetVelX !== 0) {
-                const step = airAccel * deltaTime;
-                if (Math.abs(velocity.x - targetVelX) < step) {
-                    velocity.x = targetVelX;
-                } else {
-                    velocity.x += Math.sign(targetVelX - velocity.x) * step;
+            if (takeInput) {
+                const airAccel = 15;
+                if (targetVelX !== 0) {
+                    const step = airAccel * deltaTime;
+                    if (Math.abs(velocity.x - targetVelX) < step) {
+                        velocity.x = targetVelX;
+                    } else {
+                        velocity.x += Math.sign(targetVelX - velocity.x) * step;
+                    }
                 }
             }
-            // No air deceleration — preserve momentum
         }
 
         // ---- Jump (Single-lock with coyote time) ----
-        const jumpJustPressed = inputManager.isJumpPressed() && !this.jumpHeld;
-        this.jumpHeld = inputManager.isJumpPressed();
+        const jumpJustPressed = takeInput && inputManager.isJumpPressed() && !this.jumpHeld;
+        this.jumpHeld = takeInput && inputManager.isJumpPressed();
 
         if (jumpJustPressed && canJump && !this.jumpUsed) {
             velocity.y = this.jumpForce;
@@ -176,7 +183,7 @@ export class Player {
         }
 
         // ---- Fall damage ----
-        if (isGrounded && !this.wasGrounded && velocity.y < -20) {
+        if (!this.isStartingIntro && isGrounded && !this.wasGrounded && velocity.y < -20) {
             this.die();
         }
         this.wasGrounded = isGrounded;
